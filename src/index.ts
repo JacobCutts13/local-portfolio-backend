@@ -23,6 +23,7 @@ const projectKeys = [
 //create project
 app.post("/projects", async (req, res) => {
   try {
+    console.log(req.body);
     if (Object.keys(req.body).every((key, i) => key === projectKeys[i])) {
       //check keys are correct and in order
       const queryString =
@@ -97,6 +98,8 @@ app.delete("/projects/:project_id", async (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log("server is listening on port 5000");
+const PORT_NUMBER = process.env.PORT ?? 5000;
+
+app.listen(PORT_NUMBER, () => {
+  console.log("server is listening on port " + PORT_NUMBER);
 });
