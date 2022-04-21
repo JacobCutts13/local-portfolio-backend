@@ -23,7 +23,6 @@ const projectKeys = [
 //create project
 app.post("/projects", async (req, res) => {
   try {
-    console.log(req.body);
     if (Object.keys(req.body).every((key, i) => key === projectKeys[i])) {
       //check keys are correct and in order
       const queryString =
@@ -35,7 +34,7 @@ app.post("/projects", async (req, res) => {
     }
   } catch (err) {
     console.error(err);
-    res.send("invalid project");
+    res.send("Cannot connect");
   }
 });
 
