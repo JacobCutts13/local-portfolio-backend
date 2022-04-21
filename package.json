@@ -35,6 +35,6 @@
     "test": "jest",
     "test:watch": "jest --watchAll",
     "type-check": "tsc --noEmit",
-    "start": "set NODE_ENV=dev && ts-node src"
+    "start": "ts-node src"
   }
 }
