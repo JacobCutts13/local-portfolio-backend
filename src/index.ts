@@ -46,6 +46,7 @@ app.get("/projects", async (req, res) => {
     res.json(allProjects.rows);
   } catch (err) {
     console.error(err);
+    res.send("Cannot connect")
   }
 });
 
@@ -58,6 +59,7 @@ app.get("/projects/:project_id", async (req, res) => {
     res.json(project.rows);
   } catch (err) {
     console.error(err);
+    res.send("Cannot connect")
   }
 });
 
@@ -83,6 +85,7 @@ app.put("/projects/:project_id", async (req, res) => {
     }
   } catch (err) {
     console.error(err);
+    res.send("Cannot connect")
   }
 });
 
@@ -95,6 +98,7 @@ app.delete("/projects/:project_id", async (req, res) => {
     res.json(project.rows);
   } catch (err) {
     console.error(err);
+    res.send("Cannot connect")
   }
 });
 
