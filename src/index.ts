@@ -22,6 +22,7 @@ const projectKeys = [
 
 //create project
 app.post("/projects", async (req, res) => {
+  console.log(req.body)
   try {
     if (Object.keys(req.body).every((key, i) => key === projectKeys[i])) {
       //check keys are correct and in order
@@ -64,6 +65,7 @@ app.get("/projects/:project_id", async (req, res) => {
 
 //update a project CANT RESOLVE COLUMN CANT BE A VAR
 app.put("/projects/:project_id", async (req, res) => {
+  console.log(req.body)
   try {
     const [key, value] = Object.entries(req.body)[0];
     if (projectKeys.includes(key)) {
@@ -102,7 +104,7 @@ app.delete("/projects/:project_id", async (req, res) => {
 });
 
 //post a like or unlike
-app.post("/projects/:project_id/like", async (req, res) => {
+app.post<{project_id: number}, {}, {value:string, user_email:string}>("/projects/:project_id/like", async (req, res) => {
   try {
     console.log(req.body)
       const queryString =
