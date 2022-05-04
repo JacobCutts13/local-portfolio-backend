@@ -101,6 +101,21 @@ app.delete("/projects/:project_id", async (req, res) => {
   }
 });
 
+//post a like or unlike
+app.post("/projects/:project_id/like", async (req, res) => {
+  try {
+      const queryString =
+        "INSERT INTO likes(project_id, value, user_email) VALUES($1,$2,$3) RETURNING *";
+      const queryValues = [req.params.project_id, req.body.value, req.body.user_email]
+      const newProject = await pool.query(queryString, queryValues);
+      res.json(newProject.rows[0]);
+
+  } catch (err) {
+    console.error(err);
+    res.send("Cannot connect");
+  }
+});
+
 const PORT_NUMBER = process.env.PORT ?? 5000;
 
 app.listen(PORT_NUMBER, () => {
