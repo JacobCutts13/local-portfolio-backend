@@ -104,6 +104,7 @@ app.delete("/projects/:project_id", async (req, res) => {
 //post a like or unlike
 app.post("/projects/:project_id/like", async (req, res) => {
   try {
+    console.log(req.body)
       const queryString =
         "INSERT INTO likes(project_id, value, user_email) VALUES($1,$2,$3) RETURNING *";
       const queryValues = [req.params.project_id, req.body.value, req.body.user_email]
