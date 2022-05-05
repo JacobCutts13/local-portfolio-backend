@@ -58,7 +58,9 @@ app.post("/projects", async (req, res) => {
 //get all projects
 app.get("/projects", async (req, res) => {
   try {
-    const allProjects = await client.query("SELECT * FROM projects");
+    const allProjects = await client.query(
+      " SELECT * FROM projects JOIN (SELECT project_id, SUM(value) as likes FROM likes GROUP BY project_id) AS project_likes ON id = project_id "
+    );
     res.json(allProjects.rows);
   } catch (err) {
     console.error(err);
