@@ -1,17 +1,16 @@
 import express from "express";
-import { Client } from "pg"
+import { Client } from "pg";
 import cors from "cors";
-import { config } from "dotenv"
+import { config } from "dotenv";
 
 config();
 
-const herokuSSLSetting = { rejectUnauthorized: false }
-const sslSetting = process.env.LOCAL ? false : herokuSSLSetting
+const herokuSSLSetting = { rejectUnauthorized: false };
+const sslSetting = process.env.LOCAL ? false : herokuSSLSetting;
 const dbConfig = {
   connectionString: process.env.DATABASE_URL,
   ssl: sslSetting,
 };
-
 
 const app = express();
 
@@ -36,13 +35,16 @@ const projectKeys = [
 
 //create project
 app.post("/projects", async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
   try {
     if (Object.keys(req.body).every((key, i) => key === projectKeys[i])) {
       //check keys are correct and in order
       const queryString =
         "INSERT INTO projects(title, language, summary, description, image, create_date, difficulty) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *";
-      const newProject = await client.query(queryString, Object.values(req.body));
+      const newProject = await client.query(
+        queryString,
+        Object.values(req.body)
+      );
       res.json(newProject.rows[0]);
     } else {
       res.send("invalid project");
@@ -60,26 +62,29 @@ app.get("/projects", async (req, res) => {
     res.json(allProjects.rows);
   } catch (err) {
     console.error(err);
-    res.send("Cannot connect")
+    res.send("Cannot connect");
   }
 });
 
 //get a project
-app.get<{project_id: number}, {}, {}>("/projects/:project_id", async (req, res) => {
-  try {
-    const project = await client.query("SELECT * FROM projects WHERE id=$1", [
-      req.params.project_id,
-    ]);
-    res.json(project.rows);
-  } catch (err) {
-    console.error(err);
-    res.send("Cannot connect")
+app.get<{ project_id: number }, {}, {}>(
+  "/projects/:project_id",
+  async (req, res) => {
+    try {
+      const project = await client.query("SELECT * FROM projects WHERE id=$1", [
+        req.params.project_id,
+      ]);
+      res.json(project.rows);
+    } catch (err) {
+      console.error(err);
+      res.send("Cannot connect");
+    }
   }
-});
+);
 
 //update a project CANT RESOLVE COLUMN CANT BE A VAR
 app.put("/projects/:project_id", async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
   try {
     const [key, value] = Object.entries(req.body)[0];
     if (projectKeys.includes(key)) {
@@ -100,53 +105,61 @@ app.put("/projects/:project_id", async (req, res) => {
     }
   } catch (err) {
     console.error(err);
-    res.send("Cannot connect")
-  }
-});
-
-//delete a project
-app.delete<{project_id: number}, {}, {}>("/projects/:project_id", async (req, res) => {
-  try {
-    const project = await client.query("DELETE FROM projects WHERE id=$1", [
-      req.params.project_id,
-    ]);
-    res.json(project.rows);
-  } catch (err) {
-    console.error(err);
-    res.send("Cannot connect")
-  }
-});
-
-//post a like or unlike
-app.post<{project_id: number}, {}, {value:string, user_email?:string}>("/projects/:project_id/likes", async (req, res) => {
-  try {
-    console.log(req.body)
-      const userEmail = req.body.user_email? req.body.user_email: "";
-      const queryString =
-        "INSERT INTO likes(project_id, value, user_email) VALUES($1,$2,$3) RETURNING *";
-      const queryValues = [req.params.project_id, req.body.value, userEmail]
-      const newProject = await client.query(queryString, queryValues);
-      res.json(newProject.rows[0]);
-
-  } catch (err) {
-    console.error(err);
     res.send("Cannot connect");
   }
 });
 
-//get a project likes
-app.get<{project_id: number}, {}, {}>("/projects/:project_id/likes", async (req, res) => {
-  try {
-    const project = await client.query("SELECT * FROM projects WHERE id=$1", [
-      req.params.project_id,
-    ]);
-    res.json(project.rows);
-  } catch (err) {
-    console.error(err);
-    res.send("Cannot connect")
+//delete a project
+app.delete<{ project_id: number }, {}, {}>(
+  "/projects/:project_id",
+  async (req, res) => {
+    try {
+      const project = await client.query("DELETE FROM projects WHERE id=$1", [
+        req.params.project_id,
+      ]);
+      res.json(project.rows);
+    } catch (err) {
+      console.error(err);
+      res.send("Cannot connect");
+    }
   }
-});
+);
 
+//post a like or unlike
+app.post<{ project_id: number }, {}, { value: string; user_email?: string }>(
+  "/projects/:project_id/likes",
+  async (req, res) => {
+    try {
+      console.log(req.body);
+      const userEmail = req.body.user_email ? req.body.user_email : "";
+      const queryString =
+        "INSERT INTO likes(project_id, value, user_email) VALUES($1,$2,$3) RETURNING *";
+      const queryValues = [req.params.project_id, req.body.value, userEmail];
+      const newProject = await client.query(queryString, queryValues);
+      res.json(newProject.rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.send("Cannot connect");
+    }
+  }
+);
+
+//get a project likes
+app.get<{ project_id: number }, {}, {}>(
+  "/projects/:project_id/likes",
+  async (req, res) => {
+    try {
+      const project = await client.query(
+        "SELECT SUM(value) FROM likes WHERE project_id = $1 GROUP BY project_id",
+        [req.params.project_id]
+      );
+      res.json(project.rows);
+    } catch (err) {
+      console.error(err);
+      res.send("Cannot connect");
+    }
+  }
+);
 
 const PORT_NUMBER = process.env.PORT ?? 5000;
 
