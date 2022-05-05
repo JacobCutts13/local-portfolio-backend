@@ -65,7 +65,7 @@ app.get("/projects", async (req, res) => {
 });
 
 //get a project
-app.get("/projects/:project_id", async (req, res) => {
+app.get<{project_id: number}, {}, {}>("/projects/:project_id", async (req, res) => {
   try {
     const project = await client.query("SELECT * FROM projects WHERE id=$1", [
       req.params.project_id,
@@ -105,7 +105,7 @@ app.put("/projects/:project_id", async (req, res) => {
 });
 
 //delete a project
-app.delete("/projects/:project_id", async (req, res) => {
+app.delete<{project_id: number}, {}, {}>("/projects/:project_id", async (req, res) => {
   try {
     const project = await client.query("DELETE FROM projects WHERE id=$1", [
       req.params.project_id,
@@ -118,8 +118,9 @@ app.delete("/projects/:project_id", async (req, res) => {
 });
 
 //post a like or unlike
-app.post<{project_id: number}, {}, {value:string, user_email?:string}>("/projects/:project_id/like", async (req, res) => {
+app.post<{project_id: number}, {}, {value:string, user_email?:string}>("/projects/:project_id/likes", async (req, res) => {
   try {
+    console.log(req.body)
       const userEmail = req.body.user_email? req.body.user_email: "";
       const queryString =
         "INSERT INTO likes(project_id, value, user_email) VALUES($1,$2,$3) RETURNING *";
@@ -132,6 +133,20 @@ app.post<{project_id: number}, {}, {value:string, user_email?:string}>("/project
     res.send("Cannot connect");
   }
 });
+
+//get a project likes
+app.get<{project_id: number}, {}, {}>("/projects/:project_id/likes", async (req, res) => {
+  try {
+    const project = await client.query("SELECT * FROM projects WHERE id=$1", [
+      req.params.project_id,
+    ]);
+    res.json(project.rows);
+  } catch (err) {
+    console.error(err);
+    res.send("Cannot connect")
+  }
+});
+
 
 const PORT_NUMBER = process.env.PORT ?? 5000;
 
