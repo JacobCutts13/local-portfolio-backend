@@ -68,6 +68,19 @@ app.get("/projects", async (req, res) => {
   }
 });
 
+//get a background sketch
+app.get("/projects/background", async (req, res) => {
+  try {
+    const project = await client.query(
+      " SELECT * FROM projects JOIN (SELECT project_id, SUM(value) as likes FROM likes GROUP BY project_id) AS project_likes ON id = project_id WHERE is_background = true ORDER BY RANDOM() LIMIT 1"
+    );
+    res.json(project.rows);
+  } catch (err) {
+    console.error(err);
+    res.send("Cannot connect");
+  }
+});
+
 //get a project
 app.get<{ project_id: number }, {}, {}>(
   "/projects/:project_id",
